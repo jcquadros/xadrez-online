@@ -25,6 +25,7 @@ def main():
         print(f"Erro ao conectar ao servidor: {e}")
         return
 
+    # Inicia a thread para receber mensagens do servidor
     threading.Thread(target=receber_mensagens, args=(client_socket,), daemon=True).start()
 
     try:
@@ -36,9 +37,7 @@ def main():
             if mensagem.lower() == "sair":
                 print("Encerrando conexão...")
                 break
-            if "xeque-mate!" in mensagem.lower() or "empate" in mensagem.lower() or "encerrado" in mensagem.lower():
-                print("O jogo terminou. Desconectando...")
-                break  # Se o jogo acabou, encerra a conexão
+            
             client_socket.sendall(mensagem.encode())
     except KeyboardInterrupt:
         print("\nEncerrando conexão...")
