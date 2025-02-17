@@ -17,6 +17,12 @@ salas_lock = threading.Lock()
 
 running = True
 
+def formatar_tabuleiro(tabuleiro):
+    colunas = "  a b c d e f g h"
+    tabuleiro_str = tabuleiro.__str__().split("\n")
+    tabuleiro_formatado = "\n".join([f"{8 - i} {linha}" for i, linha in enumerate(tabuleiro_str)])
+    return f"{colunas}\n{tabuleiro_formatado}\n  a b c d e f g h"
+
 class SalaDeJogo:
     def __init__(self, nome):
         self.nome = nome
@@ -40,6 +46,8 @@ class SalaDeJogo:
             if jogador_socket in self.jogadores:
                 self.jogadores.remove(jogador_socket)
                 logging.info(f"Jogador removido da sala '{self.nome}'. Restantes: {len(self.jogadores)}")
+    
+  
 
     def transmitir_movimento(self, remetente, movimento, jogador_id):
         if jogador_id != self.turno:
@@ -74,7 +82,7 @@ class SalaDeJogo:
             if mensagem_final:
                 logging.info(f"Jogo na sala '{self.nome}' terminou: {mensagem_final.strip()}")
                 for jogador in self.jogadores:
-                    jogador.sendall(f"{mensagem_final}\n{str(self.tabuleiro)}\n".encode())
+                    jogador.sendall(f"{mensagem_final}\n{formatar_tabuleiro(self.tabuleiro.unicode())}\n".encode())
                 self.gameover = True
                 print("Jogo terminou")
                 return  
@@ -84,7 +92,7 @@ class SalaDeJogo:
 
             for i, jogador in enumerate(self.jogadores):
                 try:
-                    jogador.sendall(f"MOV:{movimento}\n{str(self.tabuleiro)}\n".encode())
+                    jogador.sendall(f"MOV:{movimento}\n{formatar_tabuleiro(self.tabuleiro.unicode())}\n".encode())
                     jogador.sendall(("Sua vez!\n" if i == self.turno else "Aguarde o adversário...\n").encode())
                 except:
                     self.remover_jogador(jogador)
@@ -125,7 +133,7 @@ def handle_client(client_socket):
 
         logging.info(f"Jogo iniciado na sala '{sala_nome}'.")
 
-        client_socket.sendall(f"Jogo iniciado!\n{str(sala.tabuleiro)}\n".encode())
+        client_socket.sendall(f"Jogo iniciado!\n{formatar_tabuleiro(sala.tabuleiro.unicode())}\n".encode())
         client_socket.sendall("Sua vez!\n".encode() if jogador_id == sala.turno else "Aguarde o adversário...\n".encode())
 
         while True:

@@ -72,3 +72,38 @@ Aguarde outro jogador se conectar à mesma sala para iniciar o jogo.
 3. Teste de Desconexão:
 
     - Desconecte um dos clientes durante o jogo e verifique se o servidor encerra a partida corretamente e notifica o outro jogador.
+
+## Limites do Servidor
+
+O servidor foi testado com diferentes números de clientes para avaliar seu consumo de memória e estabilidade. Abaixo estão os resultados:
+
+| Número de Clientes |	Uso de Memória (MB)	| Observações |
+| -------------------| ---------------------| ------------|
+| 0 |	15.4 MB	| Servidor ocioso (sem clientes). |
+| 1 |	15.4 MB	| Um cliente conectado. |
+| 10 |	17.4 MB	| Dez clientes conectados. |
+| 50 | 	29.8 MB	| Cinquenta clientes conectados. |
+| 100 | 	44.0 MB	| Cem clientes conectados. |
+
+### Conclusões:
+1. Crescimento Linear:
+
+    O consumo de memória aumenta linearmente com o número de clientes. Cada cliente adicional consome aproximadamente 0.3 MB de memória.
+
+2. Limite de Cem Clientes:
+
+    Com 100 clientes, o servidor consumiu 44.0 MB de memória. No entanto, ao tentar interromper o servidor com Ctrl+C, ele não respondeu corretamente, exigindo o uso de kill para encerrá-lo. Isso indica que o servidor pode ter problemas para lidar com um grande número de conexões simultâneas.
+
+3. Estabilidade:
+
+    O servidor funcionou corretamente com até 50 clientes, mas apresentou instabilidade com 100 clientes, especialmente durante o encerramento. Isso sugere que o servidor precisa de melhorias no gerenciamento de conexões e no tratamento de sinais de interrupção.
+
+4. Recomendações:
+
+    Otimização de Memória: Reduzir o consumo de memória por cliente pode permitir que o servidor suporte mais conexões.
+
+    Melhor Tratamento de Sinais: Implementar um tratamento adequado para sinais como SIGINT (Ctrl+C) pode melhorar a estabilidade do servidor.
+
+    Limite de Conexões: Definir um limite máximo de clientes pode evitar sobrecarga do servidor.
+
+    Usar selects para não precisar criar um monte de thread. Um único processo gerenciando várias conexões diminuindo o overhead de criaçao e gerenciamento de threads além de reduzir o consumo de memória. 
